@@ -48,6 +48,9 @@ exports.getCourse = (req, res, next) => {
 
 exports.addCourse = (req, res, next) => {
   req.body.bootcamp = req.params.bootcampId;
+  // because of our middlware "protect" we can use req.user
+  req.body.user = req.user.id;
+
   // console.log(req.body);
   Bootcamp.findById(req.params.bootcampId)
     .then(bootcamp => {
@@ -56,6 +59,19 @@ exports.addCourse = (req, res, next) => {
         return new errorResponse(
           `Bootcamp not found with ID: ${req.params.id}`,
           404
+        );
+      }
+
+      // make sure that it is the bootcamp owner who is adding the new course:
+      if (
+        req.user.id !== bootcamp.user.toString() &&
+        req.user.role !== "admin"
+      ) {
+        return next(
+          new errorResponse(
+            `User with id ${req.user.id} is not allow to add the course in this bootcamp`,
+            404
+          )
         );
       }
 
@@ -83,6 +99,16 @@ exports.updateCourse = (req, res, next) => {
         );
       }
 
+      // make sure that it is the course owner who is adding the new course:
+      if (req.user.id !== course.user.toString() && req.user.role !== "admin") {
+        return next(
+          new errorResponse(
+            `User with id ${req.user.id} is not allow to update this course`,
+            404
+          )
+        );
+      }
+
       Course.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
@@ -106,6 +132,16 @@ exports.deleteCourse = (req, res, next) => {
         return new errorResponse(
           `Course not found with ID: ${req.params.id}`,
           404
+        );
+      }
+
+      // make sure that it is the course owner who is deleting the  course:
+      if (req.user.id !== course.user.toString() && req.user.role !== "admin") {
+        return next(
+          new errorResponse(
+            `User with id ${req.user.id} is not allow to update this course`,
+            404
+          )
         );
       }
 

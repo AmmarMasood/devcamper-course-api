@@ -11,9 +11,13 @@ exports.protect = async (req, res, next) => {
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
+    // sets token from bearer to header
     token = req.headers.authorization.split(" ")[1];
   }
+  // sets token from cookie
   // we can also use cookies but for testing we will only use token.
+  // if frontend sends cookie we use that eles token
+
   // else if(req.cookies.token){
   //   token = req.cookies.token
   // }

@@ -194,6 +194,16 @@ exports.bootcampPhotoUpload = (req, res, next) => {
         );
       }
 
+      // make sure the person add the bootcamp photo is the on that created it:
+      if (req.user.id !== data.user.toString() && req.user.role !== "admin") {
+        return next(
+          new errorResponse(
+            `User with id ${req.user.id} is not allow to access this route`,
+            404
+          )
+        );
+      }
+
       if (!req.files) {
         return next(new errorResponse(`Pelase upload a file`, 400));
       }
